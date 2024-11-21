@@ -62,20 +62,28 @@ def predict(frame):
     class_ids = []
     for result in results:
         if result.boxes:
+            # 클래스 및 신뢰도를 저장할 리스트
+            boxes = []
             for box in result.boxes:
                 class_id = int(box.cls[0])  # 클래스 번호
                 confidence = float(box.conf[0])  # 감지 확률
                 x1, y1, x2, y2 = map(int, box.xyxy[0])  # 바운딩 박스 좌표
-                if confidence >= 0.7 :
-                    class_ids.append(class_id)
-                else :
-                    class_ids.append(0)
-                print(f"Class: {class_id}, Confidence: {confidence:.2f}")
 
+                # 최소 신뢰도 조건 확인
+                if confidence >= 0.7:
+                    boxes.append((class_id, confidence))
+
+            # boxes 리스트에서 가장 높은 confidence에 해당하는 클래스 선택
+            if boxes:
+                best_box = max(boxes, key=lambda x: x[1])  # confidence 기준으로 정렬
+                class_ids.append(best_box[0])  # 가장 높은 confidence의 class_id 추가
+                print(f"Selected Class: {best_box[0]}, Confidence: {best_box[1]:.2f}")
+            else:
+                class_ids.append(0)  # 신뢰도가 낮아 검출이 무시된 경우
         else:
             class_ids.append(0)  # 감지되지 않은 경우 클래스 번호 0
             print("No detection, Class: 0, Confidence: 0.0")
-
+            
     detection_queue.append(class_ids)
     print("Detection Queue:", list(detection_queue))
 
