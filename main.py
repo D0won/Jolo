@@ -67,7 +67,6 @@ def predict(frame):
             for box in result.boxes:
                 class_id = int(box.cls[0])  # 클래스 번호
                 confidence = float(box.conf[0])  # 감지 확률
-                x1, y1, x2, y2 = map(int, box.xyxy[0])  # 바운딩 박스 좌표
 
                 # 최소 신뢰도 조건 확인
                 if confidence >= 0.7:
@@ -95,9 +94,16 @@ def predict(frame):
 # 프론트엔드에 JSON 데이터 전달
 @app.get("/prediction")
 async def get_classification_endpoint():
+    # camera = cv2.VideoCapture(0) <- 만약 비디오 화면을 프론트에서 받는다면? 
+    # while True :
+    #     success, frame = camera.read()
+    #     if not success :
+    #         break
+    #     else :
+    #         predict(frame)
     print("Returning Classification:", classification)
     return JSONResponse(content=classification)
-
+    
 # 실시간 비디오 스트리밍
 @app.get("/video_feed")
 async def video_feed():
